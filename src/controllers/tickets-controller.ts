@@ -1,3 +1,4 @@
+import { notFoundError } from "@/errors";
 import { AuthenticatedRequest } from "@/middlewares";
 import ticketsService from "@/services/tickets-service";
 import { Response, Request } from "express";
@@ -23,6 +24,26 @@ export async function getTickets(req: AuthenticatedRequest, res: Response) {
       return res.sendStatus(httpStatus.NOT_FOUND);
     } else {
       return res.status(httpStatus.OK).send(tickets);
+    }
+  } catch (error) {
+    return res.sendStatus(httpStatus.NO_CONTENT);
+  }
+}
+
+export async function insertTicket(req: AuthenticatedRequest, res: Response) {
+  const { userId } = req;
+  const { ticketTypeId } = req.body;
+
+  if (!ticketTypeId) {
+    res.sendStatus(httpStatus.BAD_REQUEST);
+  }
+  try {
+    const tickets = await ticketsService.insertTicket(userId, ticketTypeId);
+
+    if (tickets === "") {
+      return res.sendStatus(httpStatus.NOT_FOUND);
+    } else {
+      return res.status(httpStatus.CREATED).send(tickets);
     }
   } catch (error) {
     return res.sendStatus(httpStatus.NO_CONTENT);

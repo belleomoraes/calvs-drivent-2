@@ -17,9 +17,20 @@ async function getTickets(userId: number) {
   }
 }
 
+async function insertTicket(userId: number, ticketTypeId: number) {
+  const result = await ticketsRepository.createTicket(userId, ticketTypeId);
+
+  if (!result) {
+    return "";
+  } else {
+    return result;
+  }
+}
+
 const ticketsService = {
   getTicketsTypes,
   getTickets,
+  insertTicket,
 };
 
 export default ticketsService;
