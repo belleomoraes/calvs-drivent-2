@@ -1,104 +1,59 @@
 import { prisma } from "@/config";
-import { Ticket, TicketStatus } from "@prisma/client";
+import { Ticket } from "@prisma/client";
 
 async function findTypes() {
   return prisma.ticketType.findMany();
 }
 
-async function findTickets(userId: number) {
-  let tickets;
-  const enrollmentIdFromUserId = await prisma.enrollment.findUnique({
+async function findTickets(enrollmentId: number) {
+  return await prisma.ticket.findFirst({
     where: {
-      userId: userId,
-    },
-  });
-
-  if (!enrollmentIdFromUserId) {
-    tickets = null;
-    return tickets;
-  }
-
-  tickets = await prisma.ticket.findMany({
-    where: {
-      enrollmentId: enrollmentIdFromUserId.id,
+      enrollmentId: enrollmentId,
     },
     include: {
       TicketType: true,
     },
   });
-
-  const result = tickets.map((v) => {
-    return {
-      id: v.id,
-      status: v.status,
-      ticketTypeId: v.ticketTypeId,
-      enrollmentId: v.enrollmentId,
-      TicketType: v.TicketType,
-      createdAt: v.createdAt,
-      updatedAt: v.updatedAt,
-    };
-  });
-
-  return result;
 }
 
-async function createTicket(userId: number, ticketTypeId: number) {
-  let tickets;
-  const ticketTypeExists = await prisma.ticketType.findMany({
+async function findEnrollmentId(userId: number) {
+  return await prisma.enrollment.findFirst({
+    where: {
+      userId: userId,
+    },
+  });
+}
+
+async function findTicketTypeId(ticketTypeId: number) {
+  return await prisma.ticketType.findMany({
     where: {
       id: Number(ticketTypeId),
     },
   });
-
-  const enrollmentIdFromUserId = await prisma.enrollment.findUnique({
-    where: {
-      userId: userId,
-    },
-  });
-
-  if (!ticketTypeExists || !enrollmentIdFromUserId) {
-    tickets = null;
-    return tickets;
-  }
-
-  const ticket: Ticket = {
-    ticketTypeId: Number(ticketTypeId),
-    enrollmentId: enrollmentIdFromUserId.id,
-    status: TicketStatus.RESERVED,
-  };
-
+}
+async function createTicket(ticket: TicketRequest, enrollmentId: number) {
   await prisma.ticket.create({
     data: ticket,
   });
 
-  tickets = await prisma.ticket.findMany({
+  const result = await prisma.ticket.findFirst({
     where: {
-      enrollmentId: enrollmentIdFromUserId.id,
+      enrollmentId: enrollmentId,
     },
     include: {
       TicketType: true,
     },
   });
 
-  const result = tickets.map((v) => {
-    return {
-      id: v.id,
-      status: v.status,
-      ticketTypeId: v.ticketTypeId,
-      enrollmentId: v.enrollmentId,
-      TicketType: v.TicketType,
-      createdAt: v.createdAt,
-      updatedAt: v.updatedAt,
-    };
-  });
-
   return result;
 }
-
+type TicketRequest = Omit<Ticket, "id" | "createdAt" | "updatedAt">;
 const ticketsRepository = {
   findTypes,
   findTickets,
   createTicket,
+  findEnrollmentId,
+  findTicketTypeId,
 };
 
 export default ticketsRepository;
