@@ -27,25 +27,35 @@ export async function getPayments(req: AuthenticatedRequest, res: Response) {
 
 export async function insertPayment(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
-  const { ticketId, cardData } = req.body;
+  const { ticketId, cardData } = req.body as PaymentBody;
 
-  if (!ticketId || !cardData) {
-    res.sendStatus(httpStatus.BAD_REQUEST);
-  }
   try {
     const payment = await paymentsService.insertPayment(ticketId, cardData, userId);
-    if (payment === "") {
-      return res.sendStatus(httpStatus.UNAUTHORIZED);
-    } else if (payment === "ticket não existe") {
-      return res.sendStatus(httpStatus.NOT_FOUND);
-    } else {
-      return res.status(httpStatus.OK).send(payment);
-    }
+
+    return res.status(httpStatus.OK).send(payment);
   } catch (error) {
-    return res.sendStatus(httpStatus.NO_CONTENT);
+    if (error.name === "NotFoundError") {
+      return res.send(httpStatus.NOT_FOUND);
+    }
+
+    if (error.name === "UnauthorizedError") {
+      return res.send(httpStatus.UNAUTHORIZED);
+    }
   }
 }
 
 type TicketId = {
   ticketId: string;
+};
+
+type CardData = {
+  issuer: string;
+  number: string;
+  name: string;
+  expirationDate: string;
+  cvv: string;
+};
+type PaymentBody = {
+  ticketId: string;
+  cardData: CardData;
 };

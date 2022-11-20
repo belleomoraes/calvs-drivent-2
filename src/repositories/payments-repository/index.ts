@@ -1,5 +1,6 @@
 import { prisma } from "@/config";
 import { Payment } from "@prisma/client";
+import { TicketStatus } from "@prisma/client";
 
 async function findPayments(ticketId: string) {
   return prisma.payment.findFirst({
@@ -28,50 +29,53 @@ async function findTicketOwnership(userId: number) {
   });
 }
 
-async function createPayment(ticketId: string, cardData: string[], userId: number) {
-  const isTicketExists = await prisma.ticket.findUnique({
+async function findTicketValue(ticketTypeId: number) {
+  return await prisma.ticketType.findFirst({
     where: {
-      id: Number(ticketId),
+      id: ticketTypeId,
+    },
+    select: {
+      price: true,
     },
   });
+}
 
-  if (!isTicketExists) {
-    return "ticket não existe";
-  }
+async function createPaymentUpdateTicket(payment: PaymentToCreate) {
+  const result = await prisma.payment.create({
+    data: payment,
+  });
 
-  const enrollmentIdFromUserId = await prisma.enrollment.findUnique({
+  await prisma.ticket.update({
     where: {
-      userId: userId,
+      id: payment.ticketId,
     },
-    include: {
-      Ticket: true,
+    data: {
+      status: TicketStatus.PAID,
     },
   });
 
-  const isTicketIdFromUser = enrollmentIdFromUserId.Ticket.filter((v) => {
-    if (v.id === userId) return v;
-  });
-
-  if (!isTicketIdFromUser) {
-    return "";
-  }
-
-  const paymentObj: Payment = {
-    ticketId: Number(ticketId),
-    value: 1,
-    cardIssuer: "2",
-    cardLastDigits: "3",
-  };
-  return prisma.payment.create({
-    data: paymentObj,
-  });
+  return result;
 }
 
 const paymentsRepository = {
   findPayments,
-  createPayment,
+  createPaymentUpdateTicket,
   findTicketId,
   findTicketOwnership,
+  findTicketValue,
+};
+
+export type PaymentToCreate = Omit<Payment, "id" | "createdAt" | "updatedAt">;
+export type CardData = {
+  issuer: string;
+  number: string;
+  name: string;
+  expirationDate: string;
+  cvv: string;
+};
+export type PaymentBody = {
+  ticketId: string;
+  cardData: CardData;
 };
 
 export default paymentsRepository;
