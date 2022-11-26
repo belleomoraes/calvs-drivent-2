@@ -13,6 +13,10 @@ export async function getHotels(req: AuthenticatedRequest, res: Response) {
     if (error.name === "NotFoundError") {
       return res.send(httpStatus.NOT_FOUND);
     }
+
+    if (error.name === "PaymentError") {
+      return res.send(httpStatus.PAYMENT_REQUIRED);
+    }
   }
 }
 

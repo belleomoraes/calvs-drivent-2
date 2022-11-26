@@ -5,14 +5,14 @@ import { notFoundError, paymentError } from "@/errors";
 async function getHotels(userId: number) {
   const enrollmentId = await getEnrollmentId(userId);
 
-  await checkTicket(enrollmentId);
+  const ticket = await checkTicket(enrollmentId);
 
   return await hotelsRepository.findHotels();
 }
 
 async function getRoomByHotelId(hotelId: string, userId: number) {
   const enrollmentId = await getEnrollmentId(userId);
-  await checkTicket(enrollmentId);
+  const ticket = await checkTicket(enrollmentId);
 
   const hotelWithRooms = await hotelsRepository.findRoomByHotelId(hotelId);
 
