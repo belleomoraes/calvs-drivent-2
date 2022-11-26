@@ -4,20 +4,20 @@ async function findHotels() {
   return await prisma.hotel.findMany();
 }
 
-async function findHotelFromId(hotelId: string) {
+async function findRoomByHotelId(hotelId: string) {
   return await prisma.hotel.findFirst({
     where: {
       id: Number(hotelId),
     },
     include: {
-      Rooms: true
+      Rooms: true,
     },
   });
 }
 
 const hotelsRepository = {
   findHotels,
-  findHotelFromId,
+  findRoomByHotelId,
 };
 
 export default hotelsRepository;

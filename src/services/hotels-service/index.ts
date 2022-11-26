@@ -1,20 +1,20 @@
 import hotelsRepository from "@/repositories/hotels-repository";
 import ticketsRepository from "@/repositories/tickets-repository";
 import { notFoundError, paymentError } from "@/errors";
-import { TicketStatus } from "@prisma/client";
 
 async function getHotels(userId: number) {
   const enrollmentId = await getEnrollmentId(userId);
+
   await checkTicket(enrollmentId);
 
-  return hotelsRepository.findHotels();
+  return await hotelsRepository.findHotels();
 }
 
-async function getHotelById(hotelId: string, userId: number) {
+async function getRoomByHotelId(hotelId: string, userId: number) {
   const enrollmentId = await getEnrollmentId(userId);
   await checkTicket(enrollmentId);
 
-  const hotelWithRooms = await hotelsRepository.findHotelFromId(hotelId);
+  const hotelWithRooms = await hotelsRepository.findRoomByHotelId(hotelId);
 
   if (!hotelWithRooms) {
     throw notFoundError();
@@ -41,13 +41,11 @@ async function checkTicket(enrollmentId: number) {
   if (tickets.status === "RESERVED") {
     throw paymentError();
   }
-
-  return;
 }
 
 const hotelsService = {
   getHotels,
-  getHotelById,
+  getRoomByHotelId,
 };
 
 export default hotelsService;

@@ -16,14 +16,14 @@ export async function getHotels(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export async function getHotelById(req: AuthenticatedRequest, res: Response) {
+export async function getRoomByHotelId(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
   const { hotelId } = req.params;
   if (!hotelId) {
     res.sendStatus(httpStatus.BAD_REQUEST);
   }
   try {
-    const rooms = await hotelsService.getHotelById(hotelId, userId);
+    const rooms = await hotelsService.getRoomByHotelId(hotelId, userId);
 
     return res.status(httpStatus.OK).send(rooms);
   } catch (error) {
