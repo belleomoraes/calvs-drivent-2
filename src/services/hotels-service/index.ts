@@ -1,29 +1,18 @@
 import hotelsRepository from "@/repositories/hotels-repository";
 import ticketsRepository from "@/repositories/tickets-repository";
 import { notFoundError, paymentError } from "@/errors";
+import { TicketStatus } from "@prisma/client";
 
 async function getHotels(userId: number) {
   const enrollmentId = await getEnrollmentId(userId);
-  const tickets = await ticketsRepository.findTickets(enrollmentId);
-
-  if (!tickets || !tickets.TicketType.includesHotel || tickets.status !== "PAID") {
-    throw notFoundError();
-  }
+  await checkTicket(enrollmentId);
 
   return hotelsRepository.findHotels();
 }
 
 async function getHotelById(hotelId: string, userId: number) {
   const enrollmentId = await getEnrollmentId(userId);
-  const tickets = await ticketsRepository.findTickets(enrollmentId);
-
-  if (!tickets || !tickets.TicketType.includesHotel) {
-    throw notFoundError();
-  }
-
-  if (tickets.status !== "PAID") {
-    throw paymentError();
-  }
+  await checkTicket(enrollmentId);
 
   const hotelWithRooms = await hotelsRepository.findHotelFromId(hotelId);
 
@@ -40,6 +29,20 @@ async function getEnrollmentId(userId: number) {
     throw notFoundError();
   }
   return enrollment.id;
+}
+
+async function checkTicket(enrollmentId: number) {
+  const tickets = await ticketsRepository.findTickets(enrollmentId);
+
+  if (!tickets || !tickets.TicketType.includesHotel) {
+    throw notFoundError();
+  }
+
+  if (tickets.status === "RESERVED") {
+    throw paymentError();
+  }
+
+  return;
 }
 
 const hotelsService = {
