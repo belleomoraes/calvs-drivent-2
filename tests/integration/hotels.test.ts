@@ -27,7 +27,6 @@ beforeEach(async () => {
 const server = supertest(app);
 
 describe("GET /hotels", () => {
-  //responder com 401 se não tiver autorização,
   it("Should respond with status 401 if no token is given", async () => {
     const response = await server.get("/hotels");
 
@@ -51,9 +50,7 @@ describe("GET /hotels", () => {
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
   });
 
-  //responder com 200 caso dê tudo certo, should respond with status 200 and with hotels data
   describe("When token is valid", () => {
-    //responder com 404 se não tiver ticket pago com hospedagem
     it("Should respond with 404 when user doesnt have enrollment", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
@@ -95,7 +92,7 @@ describe("GET /hotels", () => {
 
       expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
     });
-    //responder 200 se der tudo certo
+
     it("Should respond with status 200 and hotel data", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
@@ -121,7 +118,6 @@ describe("GET /hotels", () => {
 });
 
 describe("GET /hotels/:hotelId", () => {
-  //responder com 401 se não tiver autorização,
   it("Should respond with status 401 if no token is given", async () => {
     const response = await server.get("/hotels/1");
 
@@ -146,7 +142,6 @@ describe("GET /hotels/:hotelId", () => {
   });
 
   describe("When token is valid", () => {
-    //responder com 404 se não tiver ticket pago com hospedagem
     it("Should respond with 404 when user doesnt have enrollment", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
@@ -189,7 +184,6 @@ describe("GET /hotels/:hotelId", () => {
       expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
     });
 
-    //responder com 404 se o hotelId não existir
     it("Should respond with 404 when given hotelId does not exist", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
@@ -199,7 +193,6 @@ describe("GET /hotels/:hotelId", () => {
       expect(response.status).toBe(httpStatus.NOT_FOUND);
     });
 
-    //se passar query, responder com 200 caso dê tudo certo, should respond with status 200 and with rooms com hotel data
     it("Should respond with status 200 and room/hotel data", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
