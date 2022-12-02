@@ -23,13 +23,13 @@ async function getBooking(userId: number) {
 async function createBooking(userId: number, roomId: number) {
   const enrollmentId = await getEnrollmentId(userId);
   const ticket = await checkTicket(enrollmentId);
-  const room: Room = await bookingRepository.getRoom(roomId);
+  const room = await bookingRepository.getRoom(roomId);
 
   if (!room) {
     throw notFoundError();
   }
 
-  if (room.capacity === 0) {
+  if (room.Booking.length >= room.capacity) {
     throw forbiddenError();
   }
 

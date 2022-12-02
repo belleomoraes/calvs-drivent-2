@@ -256,7 +256,7 @@ describe("POST /booking", () => {
         const user = await createUser();
         const userId = user.id;
         const token = await generateValidToken(user);
-        
+
         const enrollment = await createEnrollmentWithAddress(user);
         const ticketType = await createTicketTypeWithHotel();
         await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
@@ -301,14 +301,14 @@ describe("POST /booking", () => {
         const hotelId = hotel.id;
         const room = await createRoom(hotelId);
         const roomId = room.id;
-        
+
         const body = { roomId: roomId };
 
         const response = await server.post("/booking").set("Authorization", `Bearer ${token}`).send(body);
 
         expect(response.status).toBe(httpStatus.OK);
         expect(response.body).toEqual({
-          id: expect.any(Number)
+          id: expect.any(Number),
         });
       });
     });
