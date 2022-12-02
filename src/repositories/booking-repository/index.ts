@@ -29,7 +29,7 @@ async function getRoom(roomId: number) {
 async function updateBooking(userId: number, roomId: number): Promise<Booking> {
   return await prisma.booking.update({
     where: {
-      userId: userId,
+      id: 1,
     },
     data: {
       roomId: roomId,

@@ -8,7 +8,16 @@ async function getBooking(userId: number) {
 
   const ticket = await checkTicket(enrollmentId);
 
-  return await bookingRepository.findBooking(userId);
+  const booking = await bookingRepository.findBooking(userId);
+
+  if (!booking) {
+    throw notFoundError();
+  }
+
+  return {
+    id: booking.id,
+    Room: booking.Room,
+  };
 }
 
 async function createBooking(userId: number, roomId: number) {
