@@ -7,7 +7,6 @@ export async function getBooking(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
   try {
     const booking = await bookingService.getBooking(userId);
-    console.log("🚀 passa aqui por favor meu jesus ~ file: booking-controller.ts:10 ~ getBooking ~ booking", booking);
 
     return res.status(httpStatus.OK).send(booking);
   } catch (error) {
@@ -23,10 +22,15 @@ export async function getBooking(req: AuthenticatedRequest, res: Response) {
 
 export async function createBooking(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
-  const roomId: number = req.body;
+  const { roomId } = req.body;
+
+  if (!roomId) {
+    return res.send(httpStatus.BAD_REQUEST);
+  }
 
   try {
     const bookingId = await bookingService.createBooking(userId, roomId);
+    console.log("🚀 passa aqui por favor meu jesus ~ file: booking-controller.ts:33 ~ createBooking ~ bookingId", bookingId);
 
     return res.status(httpStatus.OK).send(bookingId);
   } catch (error) {

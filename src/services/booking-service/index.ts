@@ -33,11 +33,16 @@ async function createBooking(userId: number, roomId: number) {
     throw forbiddenError();
   }
 
+  const isBookingExists = await bookingRepository.findBooking(userId);
+  if (isBookingExists) {
+    throw forbiddenError();
+  }
+
   const bookingDataToCreate = { userId, roomId };
 
   const booking: Booking = await bookingRepository.insertBooking(bookingDataToCreate);
 
-  return booking.id;
+  return { id: booking.id };
 }
 
 async function changeBooking(userId: number, roomId: number) {
