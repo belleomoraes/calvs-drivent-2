@@ -30,7 +30,10 @@ export async function createBooking(req: AuthenticatedRequest, res: Response) {
 
   try {
     const bookingId = await bookingService.createBooking(userId, roomId);
-    console.log("🚀 passa aqui por favor meu jesus ~ file: booking-controller.ts:33 ~ createBooking ~ bookingId", bookingId);
+    console.log(
+      "🚀 passa aqui por favor meu jesus ~ file: booking-controller.ts:33 ~ createBooking ~ bookingId",
+      bookingId,
+    );
 
     return res.status(httpStatus.OK).send(bookingId);
   } catch (error) {
@@ -50,11 +53,16 @@ export async function createBooking(req: AuthenticatedRequest, res: Response) {
 
 export async function changeBooking(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
-  const roomId: number = req.body;
-  try {
-    const bookingId = await bookingService.changeBooking(userId, roomId);
+  const { roomId } = req.body;
+  const { bookingId } = req.params;
 
-    return res.status(httpStatus.OK).send(bookingId);
+  if (!roomId) {
+    return res.send(httpStatus.BAD_REQUEST);
+  }
+  try {
+    const bookingIdReturn = await bookingService.changeBooking(userId, roomId, bookingId);
+
+    return res.status(httpStatus.OK).send(bookingIdReturn);
   } catch (error) {
     if (error.name === "NotFoundError") {
       return res.send(httpStatus.NOT_FOUND);

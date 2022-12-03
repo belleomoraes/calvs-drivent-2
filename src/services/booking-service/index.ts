@@ -45,22 +45,30 @@ async function createBooking(userId: number, roomId: number) {
   return { id: booking.id };
 }
 
-async function changeBooking(userId: number, roomId: number) {
+async function changeBooking(userId: number, roomId: number, bookingId: string) {
   const enrollmentId = await getEnrollmentId(userId);
   const ticket = await checkTicket(enrollmentId);
-  const room: Room = await bookingRepository.getRoom(roomId);
+  const room = await bookingRepository.getRoom(roomId);
 
   if (!room) {
     throw notFoundError();
   }
-
-  if (room.capacity === 0) {
+  console.log(
+    "🚀 passa aqui por favor meu jesus ~ file: index.ts:58 ~ changeBooking ~ room.Booking.length",
+    room.Booking,
+  );
+  if (room.Booking.length >= room.capacity) {
     throw forbiddenError();
   }
 
-  const booking: Booking = await bookingRepository.updateBooking(userId, roomId);
+  const isBookingExists = await bookingRepository.findBookingById(bookingId);
+  if (!isBookingExists || isBookingExists.userId !== userId) {
+    throw forbiddenError();
+  }
 
-  return booking.id;
+  const booking: Booking = await bookingRepository.updateBooking(roomId, bookingId);
+
+  return { id: booking.id };
 }
 
 async function getEnrollmentId(userId: number) {
