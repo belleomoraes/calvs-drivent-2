@@ -1,12 +1,12 @@
 import bookingRepository from "@/repositories/booking-repository";
 import ticketsRepository from "@/repositories/tickets-repository";
-import { notFoundError, paymentError, forbiddenError } from "@/errors";
-import { Room, Booking } from "@prisma/client";
+import { notFoundError, forbiddenError } from "@/errors";
+import { Booking } from "@prisma/client";
 
 async function getBooking(userId: number) {
   const enrollmentId = await getEnrollmentId(userId);
 
-  const ticket = await checkTicket(enrollmentId);
+  await checkTicket(enrollmentId);
 
   const booking = await bookingRepository.findBooking(userId);
 
@@ -22,7 +22,7 @@ async function getBooking(userId: number) {
 
 async function createBooking(userId: number, roomId: number) {
   const enrollmentId = await getEnrollmentId(userId);
-  const ticket = await checkTicket(enrollmentId);
+  await checkTicket(enrollmentId);
   const room = await bookingRepository.getRoom(roomId);
 
   if (!room) {
@@ -47,16 +47,13 @@ async function createBooking(userId: number, roomId: number) {
 
 async function changeBooking(userId: number, roomId: number, bookingId: string) {
   const enrollmentId = await getEnrollmentId(userId);
-  const ticket = await checkTicket(enrollmentId);
+  await checkTicket(enrollmentId);
   const room = await bookingRepository.getRoom(roomId);
 
   if (!room) {
     throw notFoundError();
   }
-  console.log(
-    "🚀 passa aqui por favor meu jesus ~ file: index.ts:58 ~ changeBooking ~ room.Booking.length",
-    room.Booking,
-  );
+
   if (room.Booking.length >= room.capacity) {
     throw forbiddenError();
   }
@@ -74,19 +71,15 @@ async function changeBooking(userId: number, roomId: number, bookingId: string) 
 async function getEnrollmentId(userId: number) {
   const enrollment = await ticketsRepository.findEnrollmentId(userId);
   if (!enrollment) {
-    throw notFoundError();
+    throw forbiddenError();
   }
   return enrollment.id;
 }
 async function checkTicket(enrollmentId: number) {
   const tickets = await ticketsRepository.findTickets(enrollmentId);
 
-  if (!tickets || !tickets.TicketType.includesHotel) {
-    throw notFoundError();
-  }
-
-  if (tickets.status === "RESERVED") {
-    throw paymentError();
+  if (!tickets || !tickets.TicketType.includesHotel || tickets.status === "RESERVED") {
+    throw forbiddenError();
   }
 
   return tickets;
