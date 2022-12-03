@@ -24,7 +24,7 @@ export async function createBooking(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
   const { roomId } = req.body;
 
-  if (roomId === undefined) {
+  if (roomId === undefined || roomId < 1) {
     return res.send(httpStatus.BAD_REQUEST);
   }
 
@@ -48,7 +48,7 @@ export async function changeBooking(req: AuthenticatedRequest, res: Response) {
   const { roomId } = req.body;
   const { bookingId } = req.params;
 
-  if (roomId === undefined || !bookingId) {
+  if (roomId === undefined || !bookingId || roomId < 1 || Number(bookingId) < 1) {
     return res.send(httpStatus.BAD_REQUEST);
   }
 

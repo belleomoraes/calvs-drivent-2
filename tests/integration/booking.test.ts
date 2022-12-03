@@ -290,7 +290,7 @@ describe("POST /booking", () => {
         expect(response.status).toBe(httpStatus.NOT_FOUND);
       });
 
-      it("Should respond with status 404 when roomId doesnt exists - invalid partition", async () => {
+      it("Should respond with status 400 when roomId doesnt exists - invalid partition", async () => {
         const user = await createUser();
         const token = await generateValidToken(user);
         const enrollment = await createEnrollmentWithAddress(user);
@@ -304,7 +304,7 @@ describe("POST /booking", () => {
 
         const response = await server.post("/booking").set("Authorization", `Bearer ${token}`).send(body);
 
-        expect(response.status).toBe(httpStatus.NOT_FOUND);
+        expect(response.status).toBe(httpStatus.BAD_REQUEST);
       });
 
       it("Should respond with status 200 and booking id", async () => {
@@ -442,7 +442,7 @@ describe("PUT /booking/:bookingId", () => {
         expect(response.status).toBe(httpStatus.FORBIDDEN);
       });
 
-      it("Should respond with 403 when bookingId doenst exists - invalid partition", async () => {
+      it("Should respond with 400 when bookingId doenst exists - invalid partition", async () => {
         const user = await createUser();
         const token = await generateValidToken(user);
 
@@ -457,7 +457,7 @@ describe("PUT /booking/:bookingId", () => {
 
         const response = await server.put("/booking/0").set("Authorization", `Bearer ${token}`).send(body);
 
-        expect(response.status).toBe(httpStatus.FORBIDDEN);
+        expect(response.status).toBe(httpStatus.BAD_REQUEST);
       });
 
       it("Should respond with 403 when booking isnt from user", async () => {
@@ -532,7 +532,7 @@ describe("PUT /booking/:bookingId", () => {
         expect(response.status).toBe(httpStatus.NOT_FOUND);
       });
 
-      it("Should respond with status 404 when roomId doesnt exists - invalid partition", async () => {
+      it("Should respond with status 400 when roomId doesnt exists - invalid partition", async () => {
         const user = await createUser();
         const userId = user.id;
         const token = await generateValidToken(user);
@@ -549,7 +549,7 @@ describe("PUT /booking/:bookingId", () => {
 
         const response = await server.put(`/booking/${booking.id}`).set("Authorization", `Bearer ${token}`).send(body);
 
-        expect(response.status).toBe(httpStatus.NOT_FOUND);
+        expect(response.status).toBe(httpStatus.BAD_REQUEST);
       });
 
       it("Should respond with status 200 and booking id", async () => {
